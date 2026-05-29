@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 
 const PRESETS = [
-  { label: "Last 7 days", days: 7 },
+  { label: "Last 7 days",  days: 7  },
   { label: "Last 14 days", days: 14 },
   { label: "Last 30 days", days: 30 },
   { label: "Last 90 days", days: 90 },
@@ -30,34 +30,29 @@ export function DateRangePicker({ value, onChange }: Props) {
         <Button
           variant="outline"
           className={cn(
-            "w-[260px] justify-start text-left font-normal bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white",
+            "w-[260px] justify-start text-left font-normal border-border bg-card hover:bg-accent hover:text-foreground",
             !value && "text-muted-foreground"
           )}
         >
-          <CalendarIcon className="mr-2 h-4 w-4 opacity-60" />
+          <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
           {value?.from ? (
             value.to ? (
-              <>
-                {format(value.from, "MMM d, yyyy")} – {format(value.to, "MMM d, yyyy")}
-              </>
+              <>{format(value.from, "MMM d, yyyy")} – {format(value.to, "MMM d, yyyy")}</>
             ) : (
               format(value.from, "MMM d, yyyy")
             )
           ) : (
-            <span>Pick a date range</span>
+            <span className="text-muted-foreground">Pick a date range</span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className="w-auto p-0 bg-gray-900 border-white/10 text-white"
-        align="start"
-      >
+      <PopoverContent className="w-auto p-0 border-border bg-popover" align="start">
         <div className="flex">
-          <div className="flex flex-col gap-1 border-r border-white/10 p-3 text-sm">
+          <div className="flex flex-col gap-0.5 border-r border-border p-3 text-sm min-w-[130px]">
             {PRESETS.map((p) => (
               <button
                 key={p.days}
-                className="text-left px-3 py-1.5 rounded-md hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+                className="text-left px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
                 onClick={() => {
                   onChange({ from: subDays(new Date(), p.days - 1), to: new Date() });
                   setOpen(false);
@@ -73,23 +68,13 @@ export function DateRangePicker({ value, onChange }: Props) {
             onSelect={(range) => range && onChange(range)}
             numberOfMonths={2}
             disabled={{ after: new Date() }}
-            className="text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_button.rdp-day_selected]:bg-blue-600"
           />
         </div>
-        <div className="border-t border-white/10 p-3 flex justify-end gap-2">
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-gray-400 hover:text-white"
-            onClick={() => setOpen(false)}
-          >
+        <div className="border-t border-border p-3 flex justify-end gap-2">
+          <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button
-            size="sm"
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={() => setOpen(false)}
-          >
+          <Button size="sm" onClick={() => setOpen(false)}>
             Apply
           </Button>
         </div>

@@ -12,7 +12,15 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { TrendingUp, TrendingDown, Minus, MousePointerClick, Eye, Users, BarChart2 } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  MousePointerClick,
+  Eye,
+  Users,
+  BarChart2,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -32,10 +40,10 @@ import { DateRangePicker } from "./date-range-picker";
 const API_KEY = process.env.NEXT_PUBLIC_ANALYTICS_API_KEY ?? "";
 
 const chartConfig = {
-  opens: { label: "Opens", color: "hsl(217 91% 60%)" },
-  clicks: { label: "Clicks", color: "hsl(142 71% 45%)" },
-  prev_opens: { label: "Opens (prev)", color: "hsl(217 91% 60% / 0.4)" },
-  prev_clicks: { label: "Clicks (prev)", color: "hsl(142 71% 45% / 0.4)" },
+  opens:       { label: "Opens",          color: "oklch(0.585 0.102 167)" },
+  clicks:      { label: "Clicks",         color: "oklch(0.55 0.13 230)"  },
+  prev_opens:  { label: "Opens (prev)",   color: "oklch(0.585 0.102 167 / 0.35)" },
+  prev_clicks: { label: "Clicks (prev)",  color: "oklch(0.55 0.13 230 / 0.35)"  },
 } satisfies ChartConfig;
 
 function pct(a: number, b: number) {
@@ -48,8 +56,15 @@ function Delta({ value }: { value: number | null }) {
   const up = value > 0;
   const flat = value === 0;
   return (
-    <span className={`flex items-center gap-0.5 text-xs font-medium ${flat ? "text-gray-400" : up ? "text-green-400" : "text-red-400"}`}>
-      {flat ? <Minus className="h-3 w-3" /> : up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+    <span
+      className={`flex items-center gap-0.5 text-xs font-medium ${
+        flat ? "text-muted-foreground" : up ? "text-[--success]" : "text-destructive"
+      }`}
+      style={
+        up ? { color: "oklch(0.65 0.17 152)" } : !flat ? { color: "oklch(0.65 0.22 22)" } : {}
+      }
+    >
+      {flat ? <Minus className="h-3 w-3" strokeWidth={1.5} /> : up ? <TrendingUp className="h-3 w-3" strokeWidth={1.5} /> : <TrendingDown className="h-3 w-3" strokeWidth={1.5} />}
       {flat ? "—" : `${up ? "+" : ""}${value}%`}
     </span>
   );
@@ -62,22 +77,22 @@ function StatCard({
 }) {
   const delta = compare !== undefined ? pct(value, compare) : null;
   return (
-    <Card className="bg-white/5 border-white/10 text-white">
+    <Card className="border-border bg-card">
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
-        <CardTitle className="text-sm font-medium text-gray-400">{label}</CardTitle>
-        <Icon className="h-4 w-4 text-gray-500" />
+        <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
       </CardHeader>
       <CardContent>
         {loading ? (
-          <Skeleton className="h-8 w-20 bg-white/10" />
+          <Skeleton className="h-8 w-24 bg-muted" />
         ) : (
           <div className="flex items-end gap-2">
-            <span className="text-3xl font-bold tabular-nums">{value.toLocaleString()}</span>
+            <span className="text-3xl font-semibold tabular-nums">{value.toLocaleString()}</span>
             <Delta value={delta} />
           </div>
         )}
         {!loading && compare !== undefined && (
-          <p className="text-xs text-gray-500 mt-1">vs {compare.toLocaleString()} prev period</p>
+          <p className="text-xs text-muted-foreground mt-1">vs {compare.toLocaleString()} prev period</p>
         )}
       </CardContent>
     </Card>
@@ -113,7 +128,6 @@ export function AnalyticsDashboard() {
     const from = format(range.from, "yyyy-MM-dd");
     const to = format(range.to, "yyyy-MM-dd");
 
-    // Compute comparison period of equal length
     const diff = range.to.getTime() - range.from.getTime();
     const compareFrom = format(new Date(range.from.getTime() - diff - 86400000), "yyyy-MM-dd");
     const compareTo = format(new Date(range.from.getTime() - 86400000), "yyyy-MM-dd");
@@ -139,7 +153,6 @@ export function AnalyticsDashboard() {
   const current = data?.current;
   const compare = data?.compare;
 
-  // Merge timeseries for chart — align by index when comparing
   const chartData = React.useMemo(() => {
     if (!current) return [];
     return current.timeseries.map((row, i) => ({
@@ -148,26 +161,23 @@ export function AnalyticsDashboard() {
       clicks: row.clicks,
       prev_opens: compare?.timeseries[i]?.opens,
       prev_clicks: compare?.timeseries[i]?.clicks,
-      prev_date: compare?.timeseries[i]?.date,
     }));
   }, [current, compare]);
 
   const topLinks = current?.topLinks ?? [];
-  const maxCount = topLinks[0]?.count ?? 1;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-3">
         <DateRangePicker value={range} onChange={setRange} />
-        <div className="flex items-center gap-2 ml-2">
+        <div className="flex items-center gap-2">
           <Switch
             id="compare"
             checked={compareEnabled}
             onCheckedChange={setCompareEnabled}
-            className="data-[state=checked]:bg-blue-600"
           />
-          <Label htmlFor="compare" className="text-sm text-gray-400 cursor-pointer">
+          <Label htmlFor="compare" className="text-sm text-muted-foreground cursor-pointer">
             Compare to previous period
           </Label>
         </div>
@@ -175,81 +185,51 @@ export function AnalyticsDashboard() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard
-          label="Total Opens"
-          value={current?.summary.total_opens ?? 0}
-          compare={compare?.summary.total_opens}
-          icon={Eye}
-          loading={loading}
-        />
-        <StatCard
-          label="Unique Opens"
-          value={current?.summary.unique_opens ?? 0}
-          compare={compare?.summary.unique_opens}
-          icon={Users}
-          loading={loading}
-        />
-        <StatCard
-          label="Total Clicks"
-          value={current?.summary.total_clicks ?? 0}
-          compare={compare?.summary.total_clicks}
-          icon={MousePointerClick}
-          loading={loading}
-        />
-        <StatCard
-          label="Unique Clicks"
-          value={current?.summary.unique_clicks ?? 0}
-          compare={compare?.summary.unique_clicks}
-          icon={BarChart2}
-          loading={loading}
-        />
+        <StatCard label="Total Opens"   value={current?.summary.total_opens   ?? 0} compare={compare?.summary.total_opens}   icon={Eye}              loading={loading} />
+        <StatCard label="Unique Opens"  value={current?.summary.unique_opens  ?? 0} compare={compare?.summary.unique_opens}  icon={Users}            loading={loading} />
+        <StatCard label="Total Clicks"  value={current?.summary.total_clicks  ?? 0} compare={compare?.summary.total_clicks}  icon={MousePointerClick} loading={loading} />
+        <StatCard label="Unique Clicks" value={current?.summary.unique_clicks ?? 0} compare={compare?.summary.unique_clicks} icon={BarChart2}         loading={loading} />
       </div>
 
-      {/* Line chart */}
-      <Card className="bg-white/5 border-white/10 text-white">
-        <CardHeader className="flex flex-row items-start justify-between pb-2">
+      {/* Area chart */}
+      <Card className="border-border bg-card">
+        <CardHeader className="flex flex-row items-start justify-between pb-4">
           <div>
-            <CardTitle className="text-base">Opens &amp; Clicks Over Time</CardTitle>
-            <CardDescription className="text-gray-500">
+            <CardTitle className="text-sm font-semibold">Opens &amp; Clicks Over Time</CardTitle>
+            <CardDescription className="text-xs text-muted-foreground mt-0.5">
               {data?.period.from && data?.period.to
                 ? `${format(new Date(data.period.from), "MMM d")} – ${format(new Date(data.period.to), "MMM d, yyyy")}`
                 : ""}
             </CardDescription>
           </div>
           <Tabs value={metric} onValueChange={(v) => setMetric(v as typeof metric)}>
-            <TabsList className="bg-white/10 text-gray-400 h-8">
-              <TabsTrigger value="both" className="text-xs data-[state=active]:bg-white/20 data-[state=active]:text-white">Both</TabsTrigger>
-              <TabsTrigger value="opens" className="text-xs data-[state=active]:bg-white/20 data-[state=active]:text-white">Opens</TabsTrigger>
-              <TabsTrigger value="clicks" className="text-xs data-[state=active]:bg-white/20 data-[state=active]:text-white">Clicks</TabsTrigger>
+            <TabsList className="bg-muted h-7 text-xs">
+              <TabsTrigger value="both"   className="text-xs h-5 px-2.5">Both</TabsTrigger>
+              <TabsTrigger value="opens"  className="text-xs h-5 px-2.5">Opens</TabsTrigger>
+              <TabsTrigger value="clicks" className="text-xs h-5 px-2.5">Clicks</TabsTrigger>
             </TabsList>
           </Tabs>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <Skeleton className="h-[240px] w-full bg-white/10 rounded-lg" />
+            <Skeleton className="h-[220px] w-full bg-muted rounded-lg" />
           ) : (
-            <ChartContainer config={chartConfig} className="h-[240px] w-full">
+            <ChartContainer config={chartConfig} className="h-[220px] w-full">
               <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="opens" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(217 91% 60%)" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(217 91% 60%)" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="clicks" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(142 71% 45%)" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(142 71% 45%)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <CartesianGrid vertical={false} stroke="var(--border)" strokeOpacity={0.6} />
                 <XAxis
                   dataKey="date"
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fill: "#6b7280", fontSize: 11 }}
+                  tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                   tickFormatter={(v) => format(new Date(v), "MMM d")}
                   interval="preserveStartEnd"
                 />
-                <YAxis tickLine={false} axisLine={false} tick={{ fill: "#6b7280", fontSize: 11 }} />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                />
                 <ChartTooltip
                   content={
                     <ChartTooltipContent
@@ -258,17 +238,53 @@ export function AnalyticsDashboard() {
                   }
                 />
                 <ChartLegend content={<ChartLegendContent />} />
+
+                {/* Flat-mode: solid stroke, no decorative gradient fill */}
                 {(metric === "both" || metric === "opens") && (
-                  <Area dataKey="opens" type="monotone" stroke="hsl(217 91% 60%)" fill="url(#opens)" strokeWidth={2} dot={false} />
+                  <Area
+                    dataKey="opens"
+                    type="monotone"
+                    stroke="oklch(0.585 0.102 167)"
+                    fill="oklch(0.585 0.102 167)"
+                    fillOpacity={0.08}
+                    strokeWidth={1.5}
+                    dot={false}
+                  />
                 )}
                 {(metric === "both" || metric === "clicks") && (
-                  <Area dataKey="clicks" type="monotone" stroke="hsl(142 71% 45%)" fill="url(#clicks)" strokeWidth={2} dot={false} />
+                  <Area
+                    dataKey="clicks"
+                    type="monotone"
+                    stroke="oklch(0.55 0.13 230)"
+                    fill="oklch(0.55 0.13 230)"
+                    fillOpacity={0.08}
+                    strokeWidth={1.5}
+                    dot={false}
+                  />
                 )}
                 {compareEnabled && compare && (metric === "both" || metric === "opens") && (
-                  <Area dataKey="prev_opens" type="monotone" stroke="hsl(217 91% 60% / 0.4)" fill="none" strokeWidth={1.5} strokeDasharray="4 2" dot={false} />
+                  <Area
+                    dataKey="prev_opens"
+                    type="monotone"
+                    stroke="oklch(0.585 0.102 167)"
+                    fill="none"
+                    strokeWidth={1}
+                    strokeDasharray="4 3"
+                    strokeOpacity={0.45}
+                    dot={false}
+                  />
                 )}
                 {compareEnabled && compare && (metric === "both" || metric === "clicks") && (
-                  <Area dataKey="prev_clicks" type="monotone" stroke="hsl(142 71% 45% / 0.4)" fill="none" strokeWidth={1.5} strokeDasharray="4 2" dot={false} />
+                  <Area
+                    dataKey="prev_clicks"
+                    type="monotone"
+                    stroke="oklch(0.55 0.13 230)"
+                    fill="none"
+                    strokeWidth={1}
+                    strokeDasharray="4 3"
+                    strokeOpacity={0.45}
+                    dot={false}
+                  />
                 )}
               </AreaChart>
             </ChartContainer>
@@ -276,41 +292,50 @@ export function AnalyticsDashboard() {
         </CardContent>
       </Card>
 
-      {/* Top links bar chart */}
+      {/* Top links */}
       {topLinks.length > 0 && (
-        <Card className="bg-white/5 border-white/10 text-white">
-          <CardHeader>
-            <CardTitle className="text-base">Top Clicked Links</CardTitle>
-            <CardDescription className="text-gray-500">Most clicked URLs in the selected period</CardDescription>
+        <Card className="border-border bg-card">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-sm font-semibold">Top Clicked Links</CardTitle>
+            <CardDescription className="text-xs text-muted-foreground mt-0.5">
+              Most clicked URLs in the selected period
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <Skeleton className="h-[200px] w-full bg-white/10 rounded-lg" />
+              <Skeleton className="h-[180px] w-full bg-muted rounded-lg" />
             ) : (
-              <ChartContainer config={{ count: { label: "Clicks", color: "hsl(142 71% 45%)" } }} className="h-[200px] w-full">
+              <ChartContainer
+                config={{ count: { label: "Clicks", color: "oklch(0.585 0.102 167)" } }}
+                className="h-[180px] w-full"
+              >
                 <BarChart data={topLinks} layout="vertical" margin={{ left: 8, right: 16 }}>
-                  <CartesianGrid horizontal={false} stroke="rgba(255,255,255,0.05)" />
-                  <XAxis type="number" tickLine={false} axisLine={false} tick={{ fill: "#6b7280", fontSize: 11 }} />
+                  <CartesianGrid horizontal={false} stroke="var(--border)" strokeOpacity={0.6} />
+                  <XAxis
+                    type="number"
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                  />
                   <YAxis
                     type="category"
                     dataKey="url"
-                    width={220}
+                    width={200}
                     tickLine={false}
                     axisLine={false}
-                    tick={{ fill: "#9ca3af", fontSize: 11 }}
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                     tickFormatter={(v) => {
                       try {
                         const u = new URL(v);
-                        return (u.hostname + u.pathname).slice(0, 36) + ((u.hostname + u.pathname).length > 36 ? "…" : "");
+                        const s = u.hostname + u.pathname;
+                        return s.length > 34 ? s.slice(0, 34) + "…" : s;
                       } catch {
-                        return v.slice(0, 36);
+                        return v.slice(0, 34);
                       }
                     }}
                   />
-                  <ChartTooltip
-                    content={<ChartTooltipContent />}
-                  />
-                  <Bar dataKey="count" fill="hsl(142 71% 45%)" radius={[0, 4, 4, 0]} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="count" fill="oklch(0.585 0.102 167)" radius={[0, 3, 3, 0]} />
                 </BarChart>
               </ChartContainer>
             )}

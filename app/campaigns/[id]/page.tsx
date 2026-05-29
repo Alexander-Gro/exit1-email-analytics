@@ -37,58 +37,64 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
   const { campaign, stats, links } = data;
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white p-8">
+    <main className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-3xl mx-auto">
+
         <div className="mb-8">
-          <Link href="/" className="text-sm text-gray-400 hover:text-white transition-colors">
+          <Link href="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
             ← All campaigns
           </Link>
-          <h1 className="text-2xl font-bold mt-4">{campaign.name}</h1>
+          <h1 className="text-xl font-semibold mt-4">{campaign.name}</h1>
           {campaign.subject && (
-            <p className="text-gray-400 mt-1">{campaign.subject}</p>
+            <p className="text-muted-foreground text-sm mt-1">{campaign.subject}</p>
           )}
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {new Date(campaign.created_at).toLocaleString()}
             {campaign.resend_template_id && (
-              <span className="ml-3 text-gray-600">Resend: {campaign.resend_template_id}</span>
+              <span className="ml-3 font-mono">{campaign.resend_template_id}</span>
             )}
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-8">
           {[
-            { label: "Total Opens", value: stats.total_opens },
-            { label: "Unique Opens", value: stats.unique_opens },
-            { label: "Total Clicks", value: stats.total_clicks },
+            { label: "Total Opens",   value: stats.total_opens   },
+            { label: "Unique Opens",  value: stats.unique_opens  },
+            { label: "Total Clicks",  value: stats.total_clicks  },
             { label: "Unique Clicks", value: stats.unique_clicks },
           ].map((s) => (
-            <div key={s.label} className="rounded-xl border border-white/10 bg-white/5 p-4">
-              <p className="text-gray-400 text-xs">{s.label}</p>
-              <p className="text-3xl font-bold mt-1">{s.value}</p>
+            <div key={s.label} className="rounded-lg border border-border bg-card p-4">
+              <p className="text-xs text-muted-foreground">{s.label}</p>
+              <p className="text-3xl font-semibold tabular-nums mt-1">{s.value}</p>
             </div>
           ))}
         </div>
 
         {links.length > 0 && (
           <div>
-            <h2 className="text-lg font-semibold mb-3">Top Links</h2>
-            <div className="rounded-xl border border-white/10 overflow-hidden">
+            <h2 className="text-sm font-semibold mb-3">Top Links</h2>
+            <div className="rounded-lg border border-border overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10 bg-white/5">
-                    <th className="text-left px-4 py-3 text-gray-400 font-medium">URL</th>
-                    <th className="text-right px-4 py-3 text-gray-400 font-medium">Clicks</th>
+                  <tr className="border-b border-border bg-muted/40">
+                    <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">URL</th>
+                    <th className="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground">Clicks</th>
                   </tr>
                 </thead>
                 <tbody>
                   {links.map((l: any, i: number) => (
-                    <tr key={i} className="border-b border-white/5">
-                      <td className="px-4 py-3 truncate max-w-xs text-blue-400">
-                        <a href={l.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                    <tr key={i} className="border-b border-border last:border-0 hover:bg-accent/40 transition-colors">
+                      <td className="px-4 py-2.5 truncate max-w-xs">
+                        <a
+                          href={l.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary/80 hover:underline transition-colors"
+                        >
                           {l.url}
                         </a>
                       </td>
-                      <td className="px-4 py-3 text-right tabular-nums">{l.count}</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums">{l.count}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -96,6 +102,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
             </div>
           </div>
         )}
+
       </div>
     </main>
   );

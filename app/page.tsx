@@ -24,20 +24,20 @@ export default async function Home() {
   const campaigns = await getCampaigns();
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white p-8">
+    <main className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-5xl mx-auto">
+
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold">Email Analytics</h1>
-            <p className="text-gray-400 text-sm mt-1">
-              Open &amp; click tracking for all campaigns
-            </p>
+            <p className="text-xs font-mono text-muted-foreground mb-1">exit1.dev</p>
+            <h1 className="text-xl font-semibold tracking-tight">Email Analytics</h1>
           </div>
           <a
             href="https://github.com/Alexander-Gro/exit1---email-builder"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-gray-400 hover:text-white transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             ← Email Builder
           </a>
@@ -45,42 +45,41 @@ export default async function Home() {
 
         <AnalyticsDashboard />
 
+        {/* Campaigns table */}
         <div className="mt-10">
-          <h2 className="text-lg font-semibold mb-4">Campaigns</h2>
+          <h2 className="text-sm font-semibold mb-3">Campaigns</h2>
           {campaigns.length === 0 ? (
-            <div className="text-center py-16 text-gray-500 border border-white/10 rounded-xl">
-              <p className="text-base">No campaigns yet.</p>
-              <p className="text-sm mt-2">
-                Export an email from the builder to create your first campaign.
-              </p>
+            <div className="text-center py-16 text-muted-foreground border border-border rounded-lg">
+              <p className="text-sm">No campaigns yet.</p>
+              <p className="text-xs mt-1">Export an email from the builder to get started.</p>
             </div>
           ) : (
-            <div className="overflow-hidden rounded-xl border border-white/10">
+            <div className="overflow-hidden rounded-lg border border-border">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10 bg-white/5">
-                    <th className="text-left px-4 py-3 text-gray-400 font-medium">Campaign</th>
-                    <th className="text-left px-4 py-3 text-gray-400 font-medium">Subject</th>
-                    <th className="text-right px-4 py-3 text-gray-400 font-medium">Opens</th>
-                    <th className="text-right px-4 py-3 text-gray-400 font-medium">Clicks</th>
-                    <th className="text-right px-4 py-3 text-gray-400 font-medium">Date</th>
-                    <th className="px-4 py-3" />
+                  <tr className="border-b border-border bg-muted/40">
+                    <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Campaign</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Subject</th>
+                    <th className="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground">Opens</th>
+                    <th className="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground">Clicks</th>
+                    <th className="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground">Date</th>
+                    <th className="px-4 py-2.5" />
                   </tr>
                 </thead>
                 <tbody>
                   {campaigns.map((c: any) => (
-                    <tr key={c.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                      <td className="px-4 py-3 font-medium">{c.name}</td>
-                      <td className="px-4 py-3 text-gray-400">{c.subject ?? "—"}</td>
-                      <td className="px-4 py-3 text-right tabular-nums">{c.opens}</td>
-                      <td className="px-4 py-3 text-right tabular-nums">{c.clicks}</td>
-                      <td className="px-4 py-3 text-right text-gray-400">
+                    <tr key={c.id} className="border-b border-border last:border-0 hover:bg-accent/40 transition-colors">
+                      <td className="px-4 py-3 font-medium text-sm">{c.name}</td>
+                      <td className="px-4 py-3 text-muted-foreground text-sm">{c.subject ?? "—"}</td>
+                      <td className="px-4 py-3 text-right tabular-nums text-sm">{c.opens}</td>
+                      <td className="px-4 py-3 text-right tabular-nums text-sm">{c.clicks}</td>
+                      <td className="px-4 py-3 text-right text-muted-foreground text-sm">
                         {new Date(c.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <Link
                           href={`/campaigns/${c.id}`}
-                          className="text-blue-400 hover:text-blue-300 transition-colors"
+                          className="text-xs text-primary hover:text-primary/80 transition-colors"
                         >
                           Details →
                         </Link>
@@ -92,6 +91,7 @@ export default async function Home() {
             </div>
           )}
         </div>
+
       </div>
     </main>
   );
