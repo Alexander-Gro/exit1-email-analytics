@@ -1,27 +1,29 @@
+"use client";
+
+import * as React from "react";
 import Link from "next/link";
-import { sql } from "@/lib/db";
+import { Plus } from "lucide-react";
 import { AnalyticsDashboard } from "@/components/dashboard/analytics-dashboard";
+import { AddCampaignModal } from "@/components/dashboard/add-campaign-modal";
+import { Button } from "@/components/ui/button";
 
-async function getCampaigns() {
-  try {
-    const result = await sql`
-      SELECT
-        c.id, c.name, c.subject, c.created_at,
-        COUNT(DISTINCT CASE WHEN e.type = 'open' THEN e.id END)::int AS opens,
-        COUNT(DISTINCT CASE WHEN e.type = 'click' THEN e.id END)::int AS clicks
-      FROM campaigns c
-      LEFT JOIN events e ON e.campaign_id = c.id
-      GROUP BY c.id
-      ORDER BY c.created_at DESC
-    `;
-    return result.rows;
-  } catch {
-    return [];
-  }
-}
+const API_KEY = process.env.NEXT_PUBLIC_ANALYTICS_API_KEY ?? "";
 
-export default async function Home() {
-  const campaigns = await getCampaigns();
+export default function Home() {
+  const [campaigns, setCampaigns] = React.useState<any[]>([]);
+  const [showAdd, setShowAdd] = React.useState(false);
+
+  const loadCampaigns = React.useCallback(async () => {
+    try {
+      const res = await fetch("/api/campaigns", { headers: { "x-api-key": API_KEY } });
+      const data = await res.json();
+      setCampaigns(Array.isArray(data) ? data : []);
+    } catch {
+      setCampaigns([]);
+    }
+  }, []);
+
+  React.useEffect(() => { loadCampaigns(); }, [loadCampaigns]);
 
   return (
     <main className="min-h-screen bg-background text-foreground p-8">
@@ -47,11 +49,18 @@ export default async function Home() {
 
         {/* Campaigns table */}
         <div className="mt-10">
-          <h2 className="text-sm font-semibold mb-3">Campaigns</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold">Campaigns</h2>
+            <Button size="sm" variant="outline" onClick={() => setShowAdd(true)} className="gap-1.5 border-border">
+              <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
+              Add campaign
+            </Button>
+          </div>
+
           {campaigns.length === 0 ? (
             <div className="text-center py-16 text-muted-foreground border border-border rounded-lg">
               <p className="text-sm">No campaigns yet.</p>
-              <p className="text-xs mt-1">Export an email from the builder to get started.</p>
+              <p className="text-xs mt-1">Use the builder's "Push to Live" or add one manually above.</p>
             </div>
           ) : (
             <div className="overflow-hidden rounded-lg border border-border">
@@ -93,6 +102,13 @@ export default async function Home() {
         </div>
 
       </div>
+
+      {showAdd && (
+        <AddCampaignModal
+          onClose={() => setShowAdd(false)}
+          onCreated={loadCampaigns}
+        />
+      )}
     </main>
   );
 }
