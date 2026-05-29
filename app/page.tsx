@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { sql } from "@/lib/db";
+import { AnalyticsDashboard } from "@/components/dashboard/analytics-dashboard";
 
 async function getCampaigns() {
   try {
@@ -42,50 +43,55 @@ export default async function Home() {
           </a>
         </div>
 
-        {campaigns.length === 0 ? (
-          <div className="text-center py-24 text-gray-500">
-            <p className="text-lg">No campaigns yet.</p>
-            <p className="text-sm mt-2">
-              Export an email from the builder to create your first campaign.
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-hidden rounded-xl border border-white/10">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/10 bg-white/5">
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Campaign</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">Subject</th>
-                  <th className="text-right px-4 py-3 text-gray-400 font-medium">Opens</th>
-                  <th className="text-right px-4 py-3 text-gray-400 font-medium">Clicks</th>
-                  <th className="text-right px-4 py-3 text-gray-400 font-medium">Date</th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {campaigns.map((c: any) => (
-                  <tr key={c.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="px-4 py-3 font-medium">{c.name}</td>
-                    <td className="px-4 py-3 text-gray-400">{c.subject ?? "—"}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">{c.opens}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">{c.clicks}</td>
-                    <td className="px-4 py-3 text-right text-gray-400">
-                      {new Date(c.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Link
-                        href={`/campaigns/${c.id}`}
-                        className="text-blue-400 hover:text-blue-300 transition-colors"
-                      >
-                        Details →
-                      </Link>
-                    </td>
+        <AnalyticsDashboard />
+
+        <div className="mt-10">
+          <h2 className="text-lg font-semibold mb-4">Campaigns</h2>
+          {campaigns.length === 0 ? (
+            <div className="text-center py-16 text-gray-500 border border-white/10 rounded-xl">
+              <p className="text-base">No campaigns yet.</p>
+              <p className="text-sm mt-2">
+                Export an email from the builder to create your first campaign.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-xl border border-white/10">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/10 bg-white/5">
+                    <th className="text-left px-4 py-3 text-gray-400 font-medium">Campaign</th>
+                    <th className="text-left px-4 py-3 text-gray-400 font-medium">Subject</th>
+                    <th className="text-right px-4 py-3 text-gray-400 font-medium">Opens</th>
+                    <th className="text-right px-4 py-3 text-gray-400 font-medium">Clicks</th>
+                    <th className="text-right px-4 py-3 text-gray-400 font-medium">Date</th>
+                    <th className="px-4 py-3" />
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {campaigns.map((c: any) => (
+                    <tr key={c.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <td className="px-4 py-3 font-medium">{c.name}</td>
+                      <td className="px-4 py-3 text-gray-400">{c.subject ?? "—"}</td>
+                      <td className="px-4 py-3 text-right tabular-nums">{c.opens}</td>
+                      <td className="px-4 py-3 text-right tabular-nums">{c.clicks}</td>
+                      <td className="px-4 py-3 text-right text-gray-400">
+                        {new Date(c.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Link
+                          href={`/campaigns/${c.id}`}
+                          className="text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                          Details →
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );
