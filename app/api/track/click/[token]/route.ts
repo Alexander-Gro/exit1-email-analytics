@@ -3,9 +3,9 @@ import { sql } from "@/lib/db";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
-  const { token } = params;
+  const { token } = await params;
   const destination = req.nextUrl.searchParams.get("url");
 
   if (!destination) {
@@ -19,7 +19,7 @@ export async function GET(
         ${token}::uuid,
         'click',
         ${destination},
-        ${req.headers.get("x-forwarded-for") ?? req.ip ?? null},
+        ${req.headers.get("x-forwarded-for") ?? null},
         ${req.headers.get("user-agent")}
       )
     `;

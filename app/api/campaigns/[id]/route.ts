@@ -3,14 +3,14 @@ import { sql } from "@/lib/db";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const apiKey = req.headers.get("x-api-key");
   if (apiKey !== process.env.ANALYTICS_API_KEY) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = await params;
 
   const campaignResult = await sql`
     SELECT id, name, subject, resend_template_id, created_at

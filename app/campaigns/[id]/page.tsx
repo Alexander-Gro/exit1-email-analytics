@@ -29,8 +29,9 @@ async function getCampaign(id: string) {
   }
 }
 
-export default async function CampaignPage({ params }: { params: { id: string } }) {
-  const data = await getCampaign(params.id);
+export default async function CampaignPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const data = await getCampaign(id);
   if (!data) notFound();
 
   const { campaign, stats, links } = data;

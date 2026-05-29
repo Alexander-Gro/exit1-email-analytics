@@ -9,9 +9,9 @@ const PIXEL = Buffer.from(
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
-  const { token } = params;
+  const { token } = await params;
 
   try {
     await sql`
@@ -19,7 +19,7 @@ export async function GET(
       VALUES (
         ${token}::uuid,
         'open',
-        ${req.headers.get("x-forwarded-for") ?? req.ip ?? null},
+        ${req.headers.get("x-forwarded-for") ?? null},
         ${req.headers.get("user-agent")}
       )
     `;
